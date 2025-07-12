@@ -1,14 +1,13 @@
 package com.substring.smartresult.controllers;
 
+import com.substring.smartresult.entities.Mark;
+import com.substring.smartresult.entities.Student;
 import com.substring.smartresult.payload.StudentForm;
 import com.substring.smartresult.services.ResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/results")
@@ -37,8 +36,8 @@ public class ResultController {
 
     @RequestMapping(value = "/process-form",method = RequestMethod.POST)
     public String saveResult(
-            @ModelAttribute StudentForm studentForm
-
+            @ModelAttribute StudentForm studentForm,
+            Model model
     ){
 //        System.out.println(studentForm.getName());
 //        System.out.println(studentForm.getRollNumber());
@@ -53,7 +52,79 @@ public class ResultController {
 //            System.out.println("------------------------------------");
 //        });
         String studentId=resultService.save(studentForm);
+        model.addAttribute("studentId",studentId);
 
         return "result_success";
+    }
+
+//    @RequestMapping(value = "/view-result" ,method = RequestMethod.POST)
+    @PostMapping("/view-result")
+    public String getResultByRollNumber(
+            @RequestParam("rollNumber") String rollNumber,
+            Model model
+    ){
+        System.out.println("roll number:"+rollNumber);
+        Student student = resultService.getResultByRollNumber(rollNumber);
+
+
+
+
+        if(student==null){
+            return "result_not_found";
+        }else {
+
+            double totalMarks=0;
+            double totalMaxMarks=0;
+
+            for(Mark mark:student.getMarkList()){
+                totalMarks += mark.getMarks();
+                totalMaxMarks += mark.getMaxMarks();
+            }
+
+            double percentage=(totalMarks/totalMaxMarks)*100;
+            model.addAttribute("percentage",String.format("%.2f",percentage));
+
+            model.addAttribute("totalMarks",totalMarks);
+            model.addAttribute("totalMaxMarks",totalMaxMarks);
+
+            String totalGrade="F";
+            String feedBack="Nice";
+
+
+
+
+            if(percentage>90){
+                feedBack="Excellent keep up the good work";
+            }else if(percentage>80 && percentage<=90){
+                feedBack="Nice , good work ";
+            }else if(percentage>70 && percentage<=80){
+                feedBack="you can do more but well played";
+            }else if(percentage>60 && percentage<=70){
+                feedBack="you can do it , work hard";
+            }else {
+                feedBack="failed but never Give up!!";
+            }
+
+            if(percentage>90){
+                totalGrade="A+";
+            }else if(percentage>80 && percentage<=90){
+                totalGrade="A";
+            }else if(percentage>70 && percentage<=80){
+                totalGrade="B+";
+            }else if(percentage>60 && percentage<=70){
+                totalGrade="B";
+            }else {
+                totalGrade="F";
+            }
+
+
+
+            model.addAttribute("totalGrade",totalGrade);
+            model.addAttribute("feedBack",feedBack);
+            model.addAttribute("student",student);
+            model.addAttribute("marks",student.getMarkList());
+            return "result_data";
+        }
+
     }
 }

@@ -31,6 +31,7 @@ public class ResultService {
             marks.setMaxMarks(markForm.getMaxMarks());
             marks.setRemark(markForm.getRemarks());
             marks.setGrade(markForm.getGrade());
+            marks.setStudent(student);
             return marks;
         }).toList();
 
@@ -39,5 +40,9 @@ public class ResultService {
         System.out.println("Student saved with id:"+savedStudent.getId());
         return savedStudent.getId();
 
+    }
+
+    public Student getResultByRollNumber(String rollNumber){
+        return studentRepo.findByRollNumber(rollNumber);
     }
 }
