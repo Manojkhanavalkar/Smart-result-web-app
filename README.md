@@ -136,9 +136,4 @@ This project is open-source under the [MIT License](LICENSE).
 ## 🙌 Thanks for checking this project out!
 
 If you like this project, please ⭐ the repo to show your support!
-
 ```
-
-
-
-
